@@ -4,10 +4,22 @@
 
 $(document).ready(function(){
     $('#regButton').on('click', addUser)
+    //$('#regButton').on('click', testing)
 })
+
+function testing(event){
+  event.preventDefault();
+  $.ajax({
+    type:'GET',
+    url: '/emails'
+  }).done(function(response){
+    console.log(response)
+  })
+}
 
 function addUser(event){
   event.preventDefault();
+
   var newEntry = {
     'email' : $('input#regemail').val()
   }
