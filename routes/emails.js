@@ -13,24 +13,23 @@ var sourceEmailPassword = config.get('sourceEmailPassword')
 
 //declaring emailing object
 var nodemailer = require('nodemailer');
-//var transporter = nodemailer.createTransport('smtps://' + sourceEmail + '%40gmail.com:' + sourceEmailPassword + '@smtp.gmail.com');
 var transporter = nodemailer.createTransport({
-  service:'Gmail',
-  auth:{
-    user : sourceEmail,
-    pass : sourceEmailPassword
+  service: 'Gmail',
+  auth: {
+    user: sourceEmail,
+    pass: sourceEmailPassword
   }
 });
 
-router.get('/', function(req, res){
-    var db = req.db;
-    var collection = db.get('emails');
-    collection.find({}, {}, function(e, emails){
-        res.json(emails);
-    });
+router.get('/', function(req, res) {
+  var db = req.db;
+  var collection = db.get('emails');
+  collection.find({}, {}, function(e, emails) {
+    res.json(emails);
+  });
 });
 
-router.post('/addemail', function(req, res){
+router.post('/addemail', function(req, res) {
   var db = req.db;
 
   var email = req.body.email;
@@ -39,29 +38,31 @@ router.post('/addemail', function(req, res){
 
   //add email to tempemail db
   collection.insert({
-    "email" : email
-  }, function(err){
-    res.send( ( err == null)? {msg: ''}: { msg: 'error' + err})
-  })
+    "email": email
+  }, function(err, docInserted) {
+    if (err == null) {
+      console.log(docInserted)
+        //send email with hash URL to validate entry
+      var emailObject = {
+        from: "Poe Sales Bot <" + sourceEmail + ">",
+        to: email,
+        subject: "PoESales Validation Email",
+        text: "id:" + String(docInserted._id),
+      };
 
-  //send email with hash URL to validate entry
-  var emailObject = {
-    from : "Poe Sales Bot <" + sourceEmail + ">",
-    to : email,
-    subject : "PoESales Validation Email",
-    text : "Testando email",
-  };
-
-  transporter.sendMail(emailObject, function(error, info){
-    if(error){
-      return console.log(error);
+      transporter.sendMail(emailObject, function(error, info) {
+        if (error) {
+          return console.log(error);
+        } else console.log("Message sent: " + info.response);
+      })
+      res.send({msg: ''});
+    } else {
+      res.send({msg: 'error' + err});
     }
-    console.log("Message sent: " + info.response);
   })
-
 })
 
-router.post('/validateemail/:id', function(req, res){
+router.post('/validateemail/:id', function(req, res) {
   var db = req.db;
   var tempCollection = db.get('tempemails');
   var collection = db.get('emails');
@@ -74,15 +75,19 @@ router.post('/validateemail/:id', function(req, res){
   //insert entry in email
 })
 
-router.delete('/deleteemail/:id', function(req, res){
-    var db = req.db;
-    var collection = db.get('emails');
-    var emailID = req.params.id
-    collection.remove(
-        //{'_id':emailToDelete},
-        req.body,
-        function(err){
-        res.send( ( err == null)? {msg: ''}: { msg: 'error' + err})
+router.delete('/deleteemail/:id', function(req, res) {
+  var db = req.db;
+  var collection = db.get('emails');
+  var emailID = req.params.id
+  collection.remove(
+    //{'_id':emailToDelete},
+    req.body,
+    function(err) {
+      res.send((err == null) ? {
+        msg: ''
+      } : {
+        msg: 'error' + err
+      })
     })
 })
 
