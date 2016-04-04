@@ -46,7 +46,7 @@ router.post('/addemail', function(req, res){
 
   //send email with hash URL to validate entry
   var emailObject = {
-    from : sourceEmail,
+    from : "Poe Sales Bot <" + sourceEmail + ">",
     to : email,
     subject : "PoESales Validation Email",
     text : "Testando email",
