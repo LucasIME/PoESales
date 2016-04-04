@@ -62,17 +62,34 @@ router.post('/addemail', function(req, res) {
   })
 })
 
-router.post('/validateemail/:id', function(req, res) {
+router.get('/validateemail/:id', function(req, res) {
   var db = req.db;
   var tempCollection = db.get('tempemails');
   var collection = db.get('emails');
   var emailID = req.params.id
 
   //check if id exists in tempemail
+  tempCollection.find( {_id : emailID}, {}, function(findError, responseVector){
+    if (responseVector.length == 1){
+      var entry = responseVector[0]
 
-  //remove entry from tempemail
+      //remove entry from tempemail
+      tempCollection.remove(entry, function(removeError){
+        if (removeError !==null) res.send({msg:'error' + removeError});
+      })
 
-  //insert entry in email
+      //insert entry in email
+      collection.insert({'email':entry.email}, function(insertError){
+          if (insertError !==null) res.send({msg:'error' + insertError});
+      } )
+
+      res.render('success');
+
+    } else{
+      res.send({msg:'error:' + findError})
+    }
+  })
+
 })
 
 router.delete('/deleteemail/:id', function(req, res) {
