@@ -92,19 +92,25 @@ router.get('/validateemail/:id', function(req, res) {
 
 })
 
-router.delete('/deleteemail/:id', function(req, res) {
+router.get('/deleteemail/:id', function(req, res) {
   var db = req.db;
   var collection = db.get('emails');
   var emailID = req.params.id
-  collection.remove(
-    //{'_id':emailToDelete},
-    req.body,
-    function(err) {
-      res.send((err == null) ? {
-        msg: ''
-      } : {
-        msg: 'error' + err
-      })
+  
+  collection.find({_id: emailID}, {}, function(findError, responseVector){
+    
+      if(responseVector.length == 1){
+        var entry = responseVector[0]
+        //remove entry from permanent collection
+        collection.remove(entry, function(removeError){
+          if(removeError !== null) res.send({msg:'error' + removeError})
+        })
+        
+        res.render('emaildelete')
+      }
+      else{
+        res.send({msg:'error' +  findError})
+      }
     })
 })
 
