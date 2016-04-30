@@ -5,6 +5,7 @@
 $(document).ready(function(){
     $('#regButton').on('click', addUser)
     //$('#regButton').on('click', testing)
+    $('#unregButton').on('click', deleteUser)
 })
 
 function testing(event){
@@ -39,28 +40,28 @@ function addUser(event){
   })
 }
 
-// function deleteUser(event){
-//     event.preventDefault();
-//
-//     var confirmation = confirm('Are you sure you wanto to delete this user?');
-//
-//     if (confirmation === true){
-//         var email = {
-//             'email' : $('input #regemail').val()
-//         }
-//         $.ajax({
-//             type:'DELETE',
-//             data : email,
-//             url : '/emails/deleteemail/' + $(this).attr('')
-//         }).done(function(response){
-//             if (response.msg === ''){
-//                 alert('Email sucessfully removed!')
-//             }else{
-//                 alert('Error: ' + response.msg);
-//             }
-//             //populateTable();
-//         })
-//     }else{
-//         return false;
-//     }
-// };
+function deleteUser(event){
+    event.preventDefault();
+
+    var confirmation = confirm('Are you sure you wanto to delete this user?');
+
+    if (confirmation === true){
+        var email = {
+            'email' : $('input#unregemail').val()
+        }
+        console.log(email)
+        $.ajax({
+            type:'POST',
+            data : email,
+            url : '/emails/rememail'
+        }).done(function(response){
+            if (response.msg === ''){
+                alert('Email sucessfully removed!')
+            }else{
+                alert('Error: ' + response.msg);
+            }
+        })
+    }else{
+        return false;
+    }
+};

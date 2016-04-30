@@ -92,6 +92,35 @@ router.get('/validateemail/:id', function(req, res) {
 
 })
 
+router.post('/rememail', function(req, res) {
+  var db = req.db;
+  var userEmail = req.body.email;
+  var collection = db.get('emails');
+  
+  collection.find({email: userEmail}, {}, function(findError,responseVector){
+    console.log(userEmail)
+    console.log(responseVector)
+    if(responseVector.length == 1){
+      var entry = responseVector[0]
+      console.log(entry)
+      var emailObject = {
+        from: "Poe Sales Bot <" + sourceEmail + ">",
+        to: entry.email,
+        subject: "PoESales Removal Email",
+        text: "id:" + String(entry._id),
+      };
+
+      transporter.sendMail(emailObject, function(error, info) {
+        if (error) {
+          return console.log(error);
+        } else console.log("Message sent: " + info.response);
+      })
+      
+    }
+    
+  })
+})
+
 router.get('/deleteemail/:id', function(req, res) {
   var db = req.db;
   var collection = db.get('emails');
