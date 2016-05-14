@@ -47,9 +47,9 @@ router.post('/addemail', function(req, res) {
         from: "Poe Sales Bot <" + sourceEmail + ">",
         to: email,
         subject: "PoESales Validation Email",
-        text: "id:" + String(docInserted._id),
+        html: '<a href="localhost:3000/emails/validateemail/' + String(docInserted._id) + '">' + 'localhost:3000/emails/validateemail/'+ String(docInserted._id) + "</a>"
       };
-
+      console.log(emailObject.html)
       transporter.sendMail(emailObject, function(error, info) {
         if (error) {
           return console.log(error);
@@ -96,7 +96,7 @@ router.post('/rememail', function(req, res) {
   var db = req.db;
   var userEmail = req.body.email;
   var collection = db.get('emails');
-  
+
   collection.find({email: userEmail}, {}, function(findError,responseVector){
     console.log(userEmail)
     console.log(responseVector)
@@ -107,7 +107,7 @@ router.post('/rememail', function(req, res) {
         from: "Poe Sales Bot <" + sourceEmail + ">",
         to: entry.email,
         subject: "PoESales Removal Email",
-        text: "id:" + String(entry._id),
+          html: '<a href="localhost:3000/emails/deleteemail/' + String(entry._id) + '">' + 'localhost:3000/emails/deleteemail/'+ String(entry._id) + "</a>"
       };
 
       transporter.sendMail(emailObject, function(error, info) {
@@ -115,9 +115,9 @@ router.post('/rememail', function(req, res) {
           return console.log(error);
         } else console.log("Message sent: " + info.response);
       })
-      
+
     }
-    
+
   })
 })
 
@@ -125,16 +125,16 @@ router.get('/deleteemail/:id', function(req, res) {
   var db = req.db;
   var collection = db.get('emails');
   var emailID = req.params.id
-  
+
   collection.find({_id: emailID}, {}, function(findError, responseVector){
-    
+
       if(responseVector.length == 1){
         var entry = responseVector[0]
         //remove entry from permanent collection
         collection.remove(entry, function(removeError){
           if(removeError !== null) res.send({msg:'error' + removeError})
         })
-        
+
         res.render('emaildelete')
       }
       else{
