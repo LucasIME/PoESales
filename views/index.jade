@@ -2,13 +2,18 @@ extends layout
 
 block content
     div(class='container')
-        div(class="page-header")
-            h1 PoESales
         p(class='lead')  Tired of missing sales? Register your email with us and we'll remind you of every sale!
     div(class="login-wrap")
         h2 Registration Form
         div(class="form")
             input(type="text", placeholder="email", id="regemail", name="email")
             button(id="regButton") Register
+    div(class='container')
+        br
+        p(class='lead') Want to be emailed the discount items now?
+        div(class="login-wrap")
+            div(class="form")
+                input(type="text", placeholder="email", id="sendemail", name="email")
+                button(id="sendButton") Email me!
     //<input type="password" placeholder="Password" name="pw" />
     link(rel='stylesheet', href='/stylesheets/form.css')
