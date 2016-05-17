@@ -4,6 +4,8 @@
 
 var express = require('express');
 var router = express.Router();
+var request = require('request');
+var cheerio = require('cheerio');
 
 //Loading needed condig for emails
 var configjs = require('config-js')
@@ -141,6 +143,48 @@ router.get('/deleteemail/:id', function(req, res) {
         res.send({msg:'error' +  findError})
       }
     })
+})
+
+router.get('/scrape/:email', function(req, res){
+  var url = "https://www.pathofexile.com/shop/category/daily-deals";
+  var email = req.params.email;
+
+  request(url, function (error, response, html) {
+    if (!error && response.statusCode == 200) {
+        var $ = cheerio.load(html);
+        //console.log(html);
+        var  itemPricesDic = {};
+        //create itemprice dictionary based on items in discount
+        $('.shopItemBase').each(function(){
+          var itemName = $(this).children().first().next().text();
+          var itemPrice = $(this).children().first().next().next().text();
+          itemPricesDic[itemName] = itemPrice;
+        })
+
+        //setting up email body
+        var emailObject = {
+          from: "Poe Sales Bot <" + sourceEmail + ">",
+          to: email,
+          subject: "PoE Discounts",
+            html: "<h3>The Following items are in discount:</h3>"
+        };
+        for (item in itemPricesDic){
+          emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>'
+        }
+
+        //sends email
+        transporter.sendMail(emailObject, function(error, info) {
+          if (error) {
+            //return console.log(error);
+            res.send({msg:'error' +  error})
+          } else {
+            console.log("Message sent: " + info.response);
+            res.render('mailsent');
+          }
+        })
+    }
+  });
+
 })
 
 module.exports = router;
