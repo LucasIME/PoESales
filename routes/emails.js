@@ -179,7 +179,8 @@ router.get('/scrape/:email', function(req, res){
             res.send({msg:'error' +  error})
           } else {
             console.log("Message sent: " + info.response);
-            res.render('mailsent');
+            //res.render('mailsent');
+            res.send({msg:''})
           }
         })
     }
