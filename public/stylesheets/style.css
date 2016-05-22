@@ -1,5 +1,14 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:600,400,300);
 @import url(https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300);
+
+* {
+  margin-left: auto;
+          margin-right: auto;
+          margin-top: 3px;
+          margin-bottom: 3px;
+          text-align: center; 
+}
+
 footer {
   background: #ffffff;
   color: #000000;
