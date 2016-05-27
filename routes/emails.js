@@ -13,6 +13,11 @@ var config = new configjs('./config.js')
 var sourceEmail = config.get('sourceEmail')
 var sourceEmailPassword = config.get('sourceEmailPassword')
 
+function isValidEmail( email){
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
+}
+
 //declaring emailing object
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
@@ -38,30 +43,37 @@ router.post('/addemail', function(req, res) {
 
   var collection = db.get('tempemails');
 
-  //add email to tempemail db
-  collection.insert({
-    "email": email
-  }, function(err, docInserted) {
-    if (err == null) {
-      console.log(docInserted)
-        //send email with hash URL to validate entry
-      var emailObject = {
-        from: "Poe Sales Bot <" + sourceEmail + ">",
-        to: email,
-        subject: "PoESales Validation Email",
-        html: '<a href="localhost:3000/emails/validateemail/' + String(docInserted._id) + '">' + 'localhost:3000/emails/validateemail/'+ String(docInserted._id) + "</a>"
-      };
-      console.log(emailObject.html)
-      transporter.sendMail(emailObject, function(error, info) {
-        if (error) {
-          return console.log(error);
-        } else console.log("Message sent: " + info.response);
-      })
-      res.send({msg: ''});
-    } else {
-      res.send({msg: 'error' + err});
-    }
-  })
+  if ( !isValidEmail(email)){
+    res.send({msg: 'error: not valid email'})
+  }
+
+  else{
+    //add email to tempemail db
+    collection.insert({
+      "email": email
+    }, function(err, docInserted) {
+      if (err == null) {
+        console.log(docInserted)
+          //send email with hash URL to validate entry
+        var emailObject = {
+          from: "Poe Sales Bot <" + sourceEmail + ">",
+          to: email,
+          subject: "PoESales Validation Email",
+          html: '<a href="localhost:3000/emails/validateemail/' + String(docInserted._id) + '">' + 'localhost:3000/emails/validateemail/'+ String(docInserted._id) + "</a>"
+        };
+        console.log(emailObject.html)
+        transporter.sendMail(emailObject, function(error, info) {
+          if (error) {
+            return console.log(error);
+          } else console.log("Message sent: " + info.response);
+        })
+        res.send({msg: ''});
+      } else {
+        res.send({msg: 'error' + err});
+      }
+    })
+  }
+
 })
 
 router.get('/validateemail/:id', function(req, res) {
@@ -149,42 +161,48 @@ router.get('/scrape/:email', function(req, res){
   var url = "https://www.pathofexile.com/shop/category/daily-deals";
   var email = req.params.email;
 
-  request(url, function (error, response, html) {
-    if (!error && response.statusCode == 200) {
-        var $ = cheerio.load(html);
-        //console.log(html);
-        var  itemPricesDic = {};
-        //create itemprice dictionary based on items in discount
-        $('.shopItemBase').each(function(){
-          var itemName = $(this).children().first().next().text();
-          var itemPrice = $(this).children().first().next().next().text();
-          itemPricesDic[itemName] = itemPrice;
-        })
+  if ( !isValidEmail(email)){
+    res.send({msg: 'error: not valid email'})
+  }
+  else{
+    request(url, function (error, response, html) {
+      if (!error && response.statusCode == 200) {
+          var $ = cheerio.load(html);
+          //console.log(html);
+          var  itemPricesDic = {};
+          //create itemprice dictionary based on items in discount
+          $('.shopItemBase').each(function(){
+            var itemName = $(this).children().first().next().text();
+            var itemPrice = $(this).children().first().next().next().text();
+            itemPricesDic[itemName] = itemPrice;
+          })
 
-        //setting up email body
-        var emailObject = {
-          from: "Poe Sales Bot <" + sourceEmail + ">",
-          to: email,
-          subject: "PoE Discounts",
-            html: "<h3>The Following items are in discount:</h3>"
-        };
-        for (item in itemPricesDic){
-          emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>'
-        }
-
-        //sends email
-        transporter.sendMail(emailObject, function(error, info) {
-          if (error) {
-            //return console.log(error);
-            res.send({msg:'error' +  error})
-          } else {
-            console.log("Message sent: " + info.response);
-            //res.render('mailsent');
-            res.send({msg:''})
+          //setting up email body
+          var emailObject = {
+            from: "Poe Sales Bot <" + sourceEmail + ">",
+            to: email,
+            subject: "PoE Discounts",
+              html: "<h3>The Following items are in discount:</h3>"
+          };
+          for (item in itemPricesDic){
+            emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>'
           }
-        })
-    }
-  });
+
+          //sends email
+          transporter.sendMail(emailObject, function(error, info) {
+            if (error) {
+              //return console.log(error);
+              console.log("error: " +error);
+              res.send({msg:'error' +  error})
+            } else {
+              console.log("Message sent: " + info.response);
+              //res.render('mailsent');
+              res.send({msg:''})
+            }
+          })
+      }
+    });
+  }
 
 })
 
