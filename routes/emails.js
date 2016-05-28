@@ -19,14 +19,8 @@ function isValidEmail( email){
 }
 
 //declaring emailing object
-var nodemailer = require('nodemailer');
-var transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-    user: sourceEmail,
-    pass: sourceEmailPassword
-  }
-});
+var sendgripAPI = config.get('sendgridAPI')
+var sendgrid  = require('sendgrid')(sendgripAPI);
 
 router.get('/', function(req, res) {
   var db = req.db;
@@ -55,18 +49,20 @@ router.post('/addemail', function(req, res) {
       if (err == null) {
         console.log(docInserted)
           //send email with hash URL to validate entry
-        var emailObject = {
-          from: "Poe Sales Bot <" + sourceEmail + ">",
-          to: email,
-          subject: "PoESales Validation Email",
-          html: '<a href="localhost:3000/emails/validateemail/' + String(docInserted._id) + '">' + 'localhost:3000/emails/validateemail/'+ String(docInserted._id) + "</a>"
-        };
-        console.log(emailObject.html)
-        transporter.sendMail(emailObject, function(error, info) {
-          if (error) {
-            return console.log(error);
-          } else console.log("Message sent: " + info.response);
+        var emailObject = new sendgrid.Email({
+          to : email,
+          from : "Poe Sales Bot <" + sourceEmail + ">",
+          subject : "PoESales Validation Email",
+          html : '<a href="localhost:3000/emails/validateemail/' + String(docInserted._id) + '">' + 'localhost:3000/emails/validateemail/'+ String(docInserted._id) + "</a>"
         })
+        sendgrid.send(emailObject, function(err, json){
+          if (err) return console.log(error);
+          else{
+            console.log(json);
+            console.log("Message sent: " + json.response);
+          }
+        })
+
         res.send({msg: ''});
       } else {
         res.send({msg: 'error' + err});
@@ -117,17 +113,19 @@ router.post('/rememail', function(req, res) {
     if(responseVector.length == 1){
       var entry = responseVector[0]
       console.log(entry)
-      var emailObject = {
-        from: "Poe Sales Bot <" + sourceEmail + ">",
-        to: entry.email,
-        subject: "PoESales Removal Email",
-          html: '<a href="localhost:3000/emails/deleteemail/' + String(entry._id) + '">' + 'localhost:3000/emails/deleteemail/'+ String(entry._id) + "</a>"
-      };
 
-      transporter.sendMail(emailObject, function(error, info) {
-        if (error) {
-          return console.log(error);
-        } else console.log("Message sent: " + info.response);
+      var emailObject = new sendgrid.Email({
+        to : entry.email,
+        from : "Poe Sales Bot <" + sourceEmail + ">",
+        subject : "PoESales Removal Email",
+        html : '<a href="localhost:3000/emails/deleteemail/' + String(entry._id) + '">' + 'localhost:3000/emails/deleteemail/'+ String(entry._id) + "</a>"
+      })
+      sendgrid.send(emailObject, function(err, json){
+        if (err) return console.log(error);
+        else{
+          console.log(json);
+          console.log("Message sent: " + json.response);
+        }
       })
 
     }
@@ -178,28 +176,32 @@ router.get('/scrape/:email', function(req, res){
           })
 
           //setting up email body
-          var emailObject = {
-            from: "Poe Sales Bot <" + sourceEmail + ">",
-            to: email,
-            subject: "PoE Discounts",
-              html: "<h3>The Following items are in discount:</h3>"
-          };
+
+          var emailObject = new sendgrid.Email({
+            to : email,
+            from : "Poe Sales Bot <" + sourceEmail + ">",
+            subject : "PoE Discounts",
+            html : "<h3>The Following items are in discount:</h3>"
+          })
+
           for (item in itemPricesDic){
             emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>'
           }
 
           //sends email
-          transporter.sendMail(emailObject, function(error, info) {
-            if (error) {
-              //return console.log(error);
-              console.log("error: " +error);
-              res.send({msg:'error' +  error})
-            } else {
-              console.log("Message sent: " + info.response);
+          sendgrid.send(emailObject, function(err, json){
+            if (err) {
+              console.log(error);
+              res.send({msg:'error: ' + error});
+            }
+            else{
+              console.log(json);
+              console.log("Message sent: " + json.response);
               //res.render('mailsent');
-              res.send({msg:''})
+              res.send({msg:''});
             }
           })
+
       }
     });
   }
