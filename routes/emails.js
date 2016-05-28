@@ -41,38 +41,64 @@ router.post('/addemail', function(req, res) {
 
   var collection = db.get('tempemails');
 
+  //check if email trying to be inserted is valid
   if ( !isValidEmail(email)){
-    res.send({msg: 'error: not valid email'})
+    res.send({msg: 'error: not valid email'});
+    return;
   }
+  //checks if email is already in tempemails collection
+  collection.find({'email':email}, {}, function(findError, responseVector){
+    console.log(responseVector);
+    console.log('em temp ^');
+    if (responseVector.length > 0) {
+      res.send({ msg: 'email already in our database waiting for confirmation'});
+      return;
+    }
+    else{
 
-  else{
-    //add email to tempemail db
-    collection.insert({
-      "email": email
-    }, function(err, docInserted) {
-      if (err == null) {
-        console.log(docInserted)
-          //send email with hash URL to validate entry
-        var emailObject = new sendgrid.Email({
-          to : email,
-          from : "Poe Sales Bot <" + sourceEmail + ">",
-          subject : "PoESales Validation Email",
-          html : '<a href="' +  baseURL + '/emails/validateemail/' + String(docInserted._id) + '">' + baseURL + '/emails/validateemail/'+ String(docInserted._id) + "</a>"
-        })
-        sendgrid.send(emailObject, function(err, json){
-          if (err) return console.log(error);
-          else{
-            console.log(json);
-            console.log("Message sent: " + json.response);
-          }
-        })
+      //checks if email is already in emails collection
+      db.get('emails').find({'email':email}, {}, function(findError, responseVector){
+        console.log(responseVector);
+        console.log('em emails ^');
+        if(responseVector.length > 0){
+          res.send({msg : 'email already in our verified emails database'});
+          return;
+        }
+        else{
 
-        res.send({msg: ''});
-      } else {
-        res.send({msg: 'error' + err});
-      }
-    })
-  }
+          //add email to tempemail db
+          collection.insert({
+            "email": email
+          }, function(err, docInserted) {
+            if (err == null) {
+              console.log(docInserted)
+                //send email with hash URL to validate entry
+              var emailObject = new sendgrid.Email({
+                to : email,
+                from : "Poe Sales Bot <" + sourceEmail + ">",
+                subject : "PoESales Validation Email",
+                html : '<a href="' +  baseURL + '/emails/validateemail/' + String(docInserted._id) + '">' + baseURL + '/emails/validateemail/'+ String(docInserted._id) + "</a>"
+              })
+              sendgrid.send(emailObject, function(err, json){
+                if (err) return console.log(error);
+                else{
+                  console.log(json);
+                  console.log("Message sent: " + json.response);
+                }
+              })
+
+              res.send({msg: ''});
+            } else {
+              res.send({msg: 'error' + err});
+            }
+          })
+
+        }
+
+      });
+
+    }
+  })
 
 })
 
