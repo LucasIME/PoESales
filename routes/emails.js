@@ -8,10 +8,14 @@ var request = require('request');
 var cheerio = require('cheerio');
 
 //Loading needed condig for emails
-var configjs = require('config-js')
-var config = new configjs('./config.js')
-var sourceEmail = config.get('sourceEmail')
-var sourceEmailPassword = config.get('sourceEmailPassword')
+var configjs = require('config-js');
+var config = new configjs('./config.js');
+var sourceEmail = config.get('sourceEmail');
+var sourceEmailPassword = config.get('sourceEmailPassword');
+var baseURL = config.get('baseURL');
+if (process.env.NODE_ENV === 'dev'){
+  var baseURL = 'localhost:3000';
+}
 
 function isValidEmail( email){
   var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -53,7 +57,7 @@ router.post('/addemail', function(req, res) {
           to : email,
           from : "Poe Sales Bot <" + sourceEmail + ">",
           subject : "PoESales Validation Email",
-          html : '<a href="localhost:3000/emails/validateemail/' + String(docInserted._id) + '">' + 'localhost:3000/emails/validateemail/'+ String(docInserted._id) + "</a>"
+          html : '<a href="' +  baseURL + '/emails/validateemail/' + String(docInserted._id) + '">' + baseURL + '/emails/validateemail/'+ String(docInserted._id) + "</a>"
         })
         sendgrid.send(emailObject, function(err, json){
           if (err) return console.log(error);
@@ -118,7 +122,7 @@ router.post('/rememail', function(req, res) {
         to : entry.email,
         from : "Poe Sales Bot <" + sourceEmail + ">",
         subject : "PoESales Removal Email",
-        html : '<a href="localhost:3000/emails/deleteemail/' + String(entry._id) + '">' + 'localhost:3000/emails/deleteemail/'+ String(entry._id) + "</a>"
+        html : '<a href="' + baseURL + '/emails/deleteemail/' + String(entry._id) + '">' + baseURL + '/emails/deleteemail/'+ String(entry._id) + "</a>"
       })
       sendgrid.send(emailObject, function(err, json){
         if (err) return console.log(error);
