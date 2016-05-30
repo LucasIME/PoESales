@@ -2,4 +2,12 @@ runtime: nodejs
 vm: true
 
 skip_files:
-    - ^(.*/)?.*/node_modules/.*$
+- ^(.*/)?.*/node_modules/.*$
+
+handlers:
+- url: /.*
+  script: app.js
+
+- url: /tasks/sendmails
+  login: admin
+  script: app.js
