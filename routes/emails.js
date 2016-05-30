@@ -137,6 +137,11 @@ router.post('/rememail', function(req, res) {
   var userEmail = req.body.email;
   var collection = db.get('emails');
 
+  if ( !isValidEmail(userEmail)){
+    res.send({msg: 'error: not valid email'});
+    return;
+  }
+
   collection.find({email: userEmail}, {}, function(findError,responseVector){
     console.log(userEmail)
     console.log(responseVector)
