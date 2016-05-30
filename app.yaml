@@ -5,9 +5,10 @@ skip_files:
 - ^(.*/)?.*/node_modules/.*$
 
 handlers:
-- url: /.*
-  script: app.js
-
 - url: /tasks/sendmails
+  secure: always
   login: admin
+  script: app.js
+  
+- url: /.*
   script: app.js
