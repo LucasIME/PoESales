@@ -33,7 +33,7 @@ function addUser(event){
     dataType: 'JSON'
   }).done(function(response){
     if (response.msg === ''){
-      alert('Data Added Successfuly!')
+      alert('A confirmation email has been sent to you!')
     }else{
       alert('Error' + response.msg);
     }
