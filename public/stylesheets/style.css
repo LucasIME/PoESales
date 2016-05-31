@@ -6,7 +6,11 @@
           margin-right: auto;
           margin-top: 3px;
           margin-bottom: 3px;
-          text-align: center; 
+          text-align: center;
+}
+
+body {
+  padding-bottom: 7em;
 }
 
 footer {
@@ -17,7 +21,7 @@ footer {
   margin: 0 auto;
   width: 100%;
   height: 5em;
-  position: absolute;
+  position: fixed;
 }
 footer:before,
 footer:after {
