@@ -223,6 +223,7 @@ router.get('/scrape/:email', function(req, res){
             emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>'
           }
 
+          emailObject.html += '<br><p><small>Are you tired of receiving this emails? Click <a href="' + baseURL +  '/unregister">here</a> to unsubscribe</small></p>'
           //sends email
           sendgrid.send(emailObject, function(err, json){
             if (err) {

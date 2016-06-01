@@ -44,6 +44,8 @@ router.get('/sendmails', function(req, res, next) {
           for (item in itemPricesDic){
             emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>'
           }
+
+          emailObject.html += '<br><p><small>Are you tired of receiving this emails? Click <a href="' + baseURL +  '/unregister">here</a> to unsubscribe</small></p>'
           console.log(emailObject);
           //sends email to each email in the database
           collection.find({}, {}, (function(findErr, itemsVec){
