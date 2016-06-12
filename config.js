@@ -1,8 +1,8 @@
 module.exports = {
-    dbusername : "yourMLabUsername",
-    dbpassword : "yourMlabPassword",
-    sourceEmail : "emailsender@bot.com",
-    sourceEmailPassword : "senderemailpassword",
-    sendgridAPI : "SENGDRIP-API-HERE",
-    baseURL : "rootURL" //poesales.appspot.com in this case
+    dbusername : "lucasime",
+    dbpassword : "IMPA2013go!",
+    sourceEmail : "lucasimemailbot@gmail.com",
+    sourceEmailPassword : "IMPA2013go!",
+    sendgridAPI : "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",
+    baseURL : "poesales-app.appspot.com"
 }
