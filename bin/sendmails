@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 
-var express = require('express');
-var router = express.Router();
-
 //custom imports
 var request = require('request');
 var cheerio = require('cheerio');
@@ -63,9 +60,9 @@ request(url, function (error, response, html) {
       collection.find({}, {}, (function(findErr, itemsVec){
         if (findErr){
           console.log(findErr);
-          res.send({msg:findErr});
         }
         else{
+          console.log(itemsVec);
           for (item in itemsVec){
             emailObject.to = itemsVec[item].email;
 
@@ -73,7 +70,6 @@ request(url, function (error, response, html) {
             sendgrid.send(emailObject, function(err, json){
               if (err) {
                 console.log(err);
-                res.send({msg:'error: ' + err});
               }
               else{
                 console.log(json);
@@ -82,7 +78,6 @@ request(url, function (error, response, html) {
             })
 
           }
-          res.send({msg:'All emails sent successfully'});
         }
 
       })
