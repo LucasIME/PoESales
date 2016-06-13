@@ -1,0 +1,88 @@
+#!/usr/bin/env node
+
+//custom imports
+var request = require('request');
+var cheerio = require('cheerio');
+var configjs = require('config-js');
+var config = new configjs('./config.js');
+var sourceEmail = config.get('sourceEmail');
+var sourceEmailPassword = config.get('sourceEmailPassword');
+var baseURL = config.get('baseURL');
+if (process.env.NODE_ENV === 'dev'){
+  var baseURL = 'localhost:3000';
+}
+var sendgripAPI = config.get('sendgridAPI')
+var sendgrid  = require('sendgrid')(sendgripAPI);
+
+var mongo = require('mongodb')
+var monk = require('monk')
+var configjs = require('config-js')
+
+var config = new configjs('./config.js')
+var dbusername = config.get('dbusername')
+var dbpassword = config.get('dbpassword')
+var db = monk('mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales')
+
+
+var collection = db.get('emails');
+var url = "https://www.pathofexile.com/shop/category/daily-deals";
+
+request(url, function (error, response, html) {
+  if (!error && response.statusCode == 200) {
+      var $ = cheerio.load(html);
+      //console.log(html);
+      var  itemPricesDic = {};
+      //create itemprice dictionary based on items in discount
+      $('.shopItemBase').each(function(){
+        var itemName = $(this).children().first().next().text();
+        var itemPrice = $(this).children().first().next().next().text();
+        itemPricesDic[itemName] = itemPrice;
+      })
+
+      //setting up email body
+      var emailObject = new sendgrid.Email({
+        to : "",
+        from : "Poe Sales Bot <" + sourceEmail + ">",
+        subject : "PoE Discounts",
+        html : "<h3>The Following items are in discount:</h3>"
+      })
+
+      for (item in itemPricesDic){
+        emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>'
+      }
+      //store link
+      emailObject.html += '<p>Liked the item? Don\'t miss the opportunity and go straight to the shop! <a href="https://www.pathofexile.com/shop/category/daily-deals">https://www.pathofexile.com/shop/category/daily-deals</a></p>';
+
+      //adding unregister footer message
+      emailObject.html += '<br><p><small>Are you tired of receiving this emails? Click <a href="' + baseURL +  '/unregister">here</a> to unsubscribe</small></p>'
+      console.log(emailObject);
+      //sends email to each email in the database
+      collection.find({}, {}, (function(findErr, itemsVec){
+        if (findErr){
+          console.log(findErr);
+        }
+        else{
+          console.log(itemsVec);
+          for (item in itemsVec){
+            emailObject.to = itemsVec[item].email;
+
+            //sends email
+            sendgrid.send(emailObject, function(err, json){
+              if (err) {
+                console.log(err);
+              }
+              else{
+                console.log(json);
+                console.log("Message sent: " + json.response);
+              }
+            })
+
+          }
+        }
+
+      })
+    )
+
+
+  }
+});
