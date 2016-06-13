@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+var express = require('express');
+var router = express.Router();
+
+//custom imports
+var request = require('request');
+var cheerio = require('cheerio');
+var configjs = require('config-js');
+var config = new configjs('../config.js');
+var sourceEmail = config.get('sourceEmail');
+var sourceEmailPassword = config.get('sourceEmailPassword');
+var baseURL = config.get('baseURL');
+if (process.env.NODE_ENV === 'dev'){
+  var baseURL = 'localhost:3000';
+}
+var sendgripAPI = config.get('sendgridAPI')
+var sendgrid  = require('sendgrid')(sendgripAPI);
+
+console.log(config);
+console.log('rola');
