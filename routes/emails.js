@@ -38,6 +38,7 @@ router.post('/addemail', function(req, res) {
   var db = req.db;
 
   var email = req.body.email;
+  email = email.toLowerCase();
 
   var collection = db.get('tempemails');
 
