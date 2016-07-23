@@ -15,6 +15,14 @@ var sourceEmailPassword = config.get('sourceEmailPassword');
 var baseURL = config.get('baseURL');
 if (process.env.NODE_ENV === 'dev'){
   var baseURL = 'localhost:3000';
+
+  router.get('/', function(req, res) {
+    var db = req.db;
+    var collection = db.get('emails');
+    collection.find({}, {}, function(e, emails) {
+      res.json(emails);
+    });
+  });
 }
 
 function isValidEmail( email){
@@ -25,14 +33,6 @@ function isValidEmail( email){
 //declaring emailing object
 var sendgripAPI = config.get('sendgridAPI')
 var sendgrid  = require('sendgrid')(sendgripAPI);
-
-router.get('/', function(req, res) {
-  var db = req.db;
-  var collection = db.get('emails');
-  collection.find({}, {}, function(e, emails) {
-    res.json(emails);
-  });
-});
 
 router.post('/addemail', function(req, res) {
   var db = req.db;
