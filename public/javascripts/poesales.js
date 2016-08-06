@@ -46,7 +46,7 @@ function deleteUser(event){
             url : '/emails/rememail'
         }).done(function(response){
             if (response.msg === ''){
-                alert('Email sucessfully removed!')
+                alert('Unregistration email sent!')
             }else{
                 alert('Error: ' + response.msg);
             }
