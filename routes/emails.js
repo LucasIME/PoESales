@@ -163,6 +163,7 @@ router.post('/rememail', function(req, res) {
         else{
           console.log(json);
           console.log("Message sent: " + json.response);
+          res.send({"msg":""});
         }
       })
 
