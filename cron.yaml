@@ -1,4 +1,0 @@
-cron:
-- description: daily discount email sending
-  url: /tasks/sendmails
-  schedule: every day 12:00

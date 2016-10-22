@@ -4,20 +4,9 @@
 
 $(document).ready(function(){
     $('#regButton').on('click', addUser)
-    //$('#regButton').on('click', testing)
     $('#unregButton').on('click', deleteUser)
     $('#sendButton').on('click', mailUser)
 })
-
-function testing(event){
-  event.preventDefault();
-  $.ajax({
-    type:'GET',
-    url: '/emails'
-  }).done(function(response){
-    console.log(response)
-  })
-}
 
 function addUser(event){
   event.preventDefault();
