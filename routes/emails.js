@@ -8,13 +8,11 @@ var request = require('request');
 var cheerio = require('cheerio');
 
 //Loading needed condig for emails
-var configjs = require('config-js');
-var config = new configjs('./config.js');
-var sourceEmail = config.get('sourceEmail');
-var sourceEmailPassword = config.get('sourceEmailPassword');
-var baseURL = config.get('baseURL');
+var sourceEmail = process.env.sourceEmail
+var sourceEmailPassword = process.env.sourceEmailPassword
+var baseURL = process.env.baseURL
 if (process.env.NODE_ENV === 'dev'){
-  var baseURL = 'localhost:3000';
+  var baseURL = 'localhost:' + String(process.env.PORT);
 
   router.get('/', function(req, res) {
     var db = req.db;
@@ -31,7 +29,7 @@ function isValidEmail( email){
 }
 
 //declaring emailing object
-var sendgripAPI = config.get('sendgridAPI')
+var sendgripAPI = process.env.sendgridAPI;
 var sendgrid  = require('sendgrid')(sendgripAPI);
 
 router.post('/addemail', function(req, res) {

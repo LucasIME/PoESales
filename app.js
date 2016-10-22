@@ -7,11 +7,9 @@ var bodyParser = require('body-parser');
 
 var mongo = require('mongodb')
 var monk = require('monk')
-var configjs = require('config-js')
 
-var config = new configjs('./config.js')
-var dbusername = config.get('dbusername')
-var dbpassword = config.get('dbpassword')
+var dbusername = process.env.dbusername
+var dbpassword = process.env.dbpassword
 var db = monk('mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales')
 
 var routes = require('./routes/index');
