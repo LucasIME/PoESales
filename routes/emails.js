@@ -228,9 +228,10 @@ router.get('/scrape/:email', function(req, res){
           emailObject.html += '<p>Liked the item? Don\'t miss the opportunity and go straight to the shop! <a href="https://www.pathofexile.com/shop/category/daily-deals">https://www.pathofexile.com/shop/category/daily-deals</a></p>';
 
           //adding unregister footer message
-          emailObject.html += '<br><p><small>Are you tired of receiving this emails? Click <a href="' + baseURL +  '/unregister">here</a> to unsubscribe</small></p>'
+          emailObject.html += '<br><p><small>Are you tired of receiving this emails? Click <a href="http://' + baseURL +  '/unregister">here</a> to unsubscribe</small></p>'
           //sends email
           sendgrid.send(emailObject, function(err, json){
+            console.log(emailObject.html);
             if (err) {
               console.log(error);
               res.send({msg:'error: ' + error});
