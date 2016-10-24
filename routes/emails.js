@@ -76,7 +76,7 @@ router.post('/addemail', function(req, res) {
                 to : email,
                 from : "Poe Sales Bot <" + sourceEmail + ">",
                 subject : "PoESales Validation Email",
-                html : '<h3>Click the link bellow to confirm your registration:</h3><br><a href="' +  baseURL + '/emails/validateemail/' + String(docInserted._id) + '">' + baseURL + '/emails/validateemail/'+ String(docInserted._id) + "</a>"
+                html : '<h3>Click the link bellow to confirm your registration:</h3><br><a href="http://' +  baseURL + '/emails/validateemail/' + String(docInserted._id) + '">' + baseURL + '/emails/validateemail/'+ String(docInserted._id) + "</a>"
               })
               sendgrid.send(emailObject, function(err, json){
                 if (err) return console.log(error);
@@ -154,7 +154,7 @@ router.post('/rememail', function(req, res) {
         to : entry.email,
         from : "Poe Sales Bot <" + sourceEmail + ">",
         subject : "PoESales Removal Email",
-        html : '<h3>Click the link bellow to confirm your unregistration</h3><br><a href="' + baseURL + '/emails/deleteemail/' + String(entry._id) + '">' + baseURL + '/emails/deleteemail/'+ String(entry._id) + "</a>"
+        html : '<h3>Click the link bellow to confirm your unregistration</h3><br><a href="http://' + baseURL + '/emails/deleteemail/' + String(entry._id) + '">' + baseURL + '/emails/deleteemail/'+ String(entry._id) + "</a>"
       })
       sendgrid.send(emailObject, function(err, json){
         if (err) return console.log(error);
