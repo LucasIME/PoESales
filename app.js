@@ -1,9 +1,5 @@
 var dbusername = process.env.dbusername
 var dbpassword = process.env.dbpassword
-var configjs = require('config-js')
-var config = new configjs('./config.js')
-var dbusername = config.get('dbusername')
-var dbpassword = config.get('dbpassword')
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
