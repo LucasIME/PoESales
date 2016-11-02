@@ -3,24 +3,20 @@
 //custom imports
 var request = require('request');
 var cheerio = require('cheerio');
-var configjs = require('config-js');
-var config = new configjs('./config.js');
-var sourceEmail = config.get('sourceEmail');
-var sourceEmailPassword = config.get('sourceEmailPassword');
-var baseURL = config.get('baseURL');
+var sourceEmail = process.env.sourceEmail;
+var sourceEmailPassword = process.env.sourceEmailPassword;
+var baseURL = process.env.sourceEmail;
 if (process.env.NODE_ENV === 'dev'){
   var baseURL = 'localhost:3000';
 }
-var sendgripAPI = config.get('sendgridAPI')
+var sendgripAPI = process.env.sendgripAPI;
 var sendgrid  = require('sendgrid')(sendgripAPI);
 
 var mongo = require('mongodb')
 var monk = require('monk')
-var configjs = require('config-js')
 
-var config = new configjs('./config.js')
-var dbusername = config.get('dbusername')
-var dbpassword = config.get('dbpassword')
+var dbusername = process.env.dbusername;
+var dbpassword = process.env.dbpassword;
 var db = monk('mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales')
 
 
