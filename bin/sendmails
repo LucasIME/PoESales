@@ -5,12 +5,12 @@ var request = require('request');
 var cheerio = require('cheerio');
 var sourceEmail = process.env.sourceEmail;
 var sourceEmailPassword = process.env.sourceEmailPassword;
-var baseURL = process.env.sourceEmail;
+var baseURL = process.env.baseURL;
 if (process.env.NODE_ENV === 'dev'){
-  var baseURL = 'localhost:3000';
+  var baseURL = 'localhost:' + String(process.env.PORT);
 }
-var sendgripAPI = process.env.sendgripAPI;
-var sendgrid  = require('sendgrid')(sendgripAPI);
+var sendgridAPI = process.env.sendgridAPI;
+var sendgrid  = require('sendgrid')(sendgridAPI);
 
 var mongo = require('mongodb')
 var monk = require('monk')

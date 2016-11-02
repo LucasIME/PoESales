@@ -8,8 +8,8 @@ var request = require('request');
 var cheerio = require('cheerio');
 
 //Loading needed condig for emails
-var sourceEmail = process.env.sourceEmail
-var sourceEmailPassword = process.env.sourceEmailPassword
+var sourceEmail = process.env.sourceEmail;
+var sourceEmailPassword = process.env.sourceEmailPassword;
 var baseURL = process.env.baseURL
 if (process.env.NODE_ENV === 'dev'){
   var baseURL = 'localhost:' + String(process.env.PORT);
