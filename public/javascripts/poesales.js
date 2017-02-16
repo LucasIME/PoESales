@@ -3,9 +3,9 @@
  */
 
 $(document).ready(function(){
-    $('#regButton').on('click', addUser)
-    $('#unregButton').on('click', deleteUser)
-    $('#sendButton').on('click', mailUser)
+    $('#regButton').on('click', addUser);
+    $('#unregButton').on('click', deleteUser);
+    $('#sendButton').on('click', mailUser);
 });
 
 function addUser(event){
@@ -13,7 +13,7 @@ function addUser(event){
 
   var newEntry = {
     'email' : $('input#regemail').val()
-  }
+  };
 
   $.ajax({
     type: 'POST',
@@ -22,12 +22,12 @@ function addUser(event){
     dataType: 'JSON'
   }).done(function(response){
     if (response.msg === ''){
-      alert('A confirmation email has been sent to you!')
+      alert('A confirmation email has been sent to you!');
     }else{
       alert('Error' + response.msg);
     }
 
-  })
+  });
 }
 
 function deleteUser(event){
@@ -38,8 +38,8 @@ function deleteUser(event){
     if (confirmation === true){
         var email = {
             'email' : $('input#unregemail').val()
-        }
-        console.log(email)
+        };
+        console.log(email);
         $.ajax({
             type:'POST',
             data : email,
@@ -50,7 +50,7 @@ function deleteUser(event){
             }else{
                 alert('Error: ' + response.msg);
             }
-        })
+        });
     }else{
         return false;
     }
@@ -62,7 +62,7 @@ function mailUser(event){
   var email = {
     'email' : $('input#sendemail').val()
   };
-  console.log(email)
+  console.log(email);
 
   $.ajax({
     type:'GET',
