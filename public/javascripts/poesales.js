@@ -6,7 +6,7 @@ $(document).ready(function(){
     $('#regButton').on('click', addUser)
     $('#unregButton').on('click', deleteUser)
     $('#sendButton').on('click', mailUser)
-})
+});
 
 function addUser(event){
   event.preventDefault();
@@ -54,27 +54,25 @@ function deleteUser(event){
     }else{
         return false;
     }
-};
+}
 
 function mailUser(event){
   event.preventDefault();
 
   var email = {
     'email' : $('input#sendemail').val()
-  }
+  };
   console.log(email)
 
   $.ajax({
     type:'GET',
     //data:email,
-    url: '/emails/scrape/' + email['email']
+    url: '/emails/scrape/' + email.email
   }).done(function(response){
     if (response.msg === ''){
       alert('Email sent successfuly!');
     }else{
       alert('Error: ' + response.msg);
     }
-  })
-
-
+  });
 }
