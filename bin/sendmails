@@ -12,12 +12,12 @@ if (process.env.NODE_ENV === 'dev'){
 var sendgridAPI = process.env.sendgridAPI;
 var sendgrid  = require('sendgrid')(sendgridAPI);
 
-var mongo = require('mongodb')
-var monk = require('monk')
+var mongo = require('mongodb');
+var monk = require('monk');
 
 var dbusername = process.env.dbusername;
 var dbpassword = process.env.dbpassword;
-var db = monk('mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales')
+var db = monk('mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales');
 
 
 var collection = db.get('emails');
@@ -33,7 +33,7 @@ request(url, function (error, response, html) {
         var itemName = $(this).children().first().next().text();
         var itemPrice = $(this).children().first().next().next().text();
         itemPricesDic[itemName] = itemPrice;
-      })
+      });
 
       //setting up email body
       var emailObject = new sendgrid.Email({
@@ -41,16 +41,16 @@ request(url, function (error, response, html) {
         from : "Poe Sales Bot <" + sourceEmail + ">",
         subject : "PoE Discounts",
         html : "<h3>The Following items are in discount:</h3>"
-      })
+      });
 
-      for (item in itemPricesDic){
-        emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>'
+      for (var item in itemPricesDic){
+        emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>';
       }
       //store link
       emailObject.html += '<p>Liked the item? Don\'t miss the opportunity and go straight to the shop! <a href="https://www.pathofexile.com/shop/category/daily-deals">https://www.pathofexile.com/shop/category/daily-deals</a></p>';
 
       //adding unregister footer message
-      emailObject.html += '<br><p><small>Are you tired of receiving this emails? Click <a href="' + baseURL +  '/unregister">here</a> to unsubscribe</small></p>'
+      emailObject.html += '<br><p><small>Are you tired of receiving this emails? Click <a href="' + baseURL +  '/unregister">here</a> to unsubscribe</small></p>';
       console.log(emailObject);
       //sends email to each email in the database
       collection.find({}, {}, (function(findErr, itemsVec){
@@ -71,13 +71,13 @@ request(url, function (error, response, html) {
                 console.log(json);
                 console.log("Message sent: " + json.response);
               }
-            })
+            });
 
           }
         }
 
       })
-    )
+    );
 
 
   }
