@@ -15,9 +15,8 @@ class Footer extends React.Component { render() {
                 </small>
             </p>
         </footer>
-        )
+        );
   }
 }
 
 export default Footer;
-

@@ -9,9 +9,8 @@ class Unregister extends React.Component { render() {
                 <button id="unregButton">Unregister</button>
             </div>
         </div>
-    )
+    );
   }
 }
 
 export default Unregister;
-

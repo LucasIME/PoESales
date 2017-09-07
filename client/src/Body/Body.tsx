@@ -11,7 +11,7 @@ class Body extends React.Component { render() {
             <div className="login-wrap">
                 <h2>Registration Form</h2>
                 <div className="form">
-                    <input type="text" placeholder="email" id="regemail" name="email"></input>
+                    <input type="text" placeholder="email" id="regemail" name="email"/>
                     <button id="regButton">Register</button>
                 </div>
             </div>
@@ -20,15 +20,14 @@ class Body extends React.Component { render() {
                 <p className="lead"> Want to be emailed the discount items now?</p>
                 <div className="login-wrap">
                     <div className="form">
-                        <input type="text" placeholder="email" id="sendemail" name="email"></input>
+                        <input type="text" placeholder="email" id="sendemail" name="email"/>
                         <button id="sendButton">Email me!</button>
                     </div>
                 </div>
             </div>
         </div>
-    )
+    );
   }
 }
 
 export default Body;
-
