@@ -30,7 +30,12 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'client', 'build')));
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/react', function(req, res){
+    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+});
 
 app.use(function(req, res, next){
   req.db = db;
