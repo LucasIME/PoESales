@@ -1,6 +1,7 @@
 /**
  * Created by meirellu on 2/28/16.
  */
+import $ from 'jquery';
 
 $(document).ready(function(){
     $('#regButton').on('click', addUser);
