@@ -4,8 +4,8 @@
 import $ from 'jquery';
 
 $(document).ready(function(){
-    $('#regButton').on('click', addUser);
-    $('#unregButton').on('click', deleteUser);
+    //$('#regButton').on('click', addUser);
+    //$('#unregButton').on('click', deleteUser);
 });
 
 function addUser(event){
