@@ -239,8 +239,7 @@ router.get('/scrape/:email', function(req, res){
             else{
               console.log(json);
               console.log("Message sent: " + json.response);
-              //res.render('mailsent');
-              res.send({msg:''});
+              res.json({msg:'Email sent successfully'});
             }
           });
 
