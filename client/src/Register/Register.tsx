@@ -35,15 +35,10 @@ class Register extends React.Component<{}, IRegisterState>{
     }
 
     treatResponse(response: any) {
-        alert("this is the response i got:" + JSON.stringify(response));
-        if (response.msg === ''){
-            alert('A confirmation email has been sent to you!');
-        }else{
-        alert('Error' + response.msg);
-        }
+        alert(response.msg);
     }
 
-    render(): JSX.Element{
+    render(): JSX.Element {
         return(
         <div>
             <div className="container">

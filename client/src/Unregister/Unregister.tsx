@@ -22,9 +22,7 @@ class Unregister extends React.Component<{}, IUnregisterState> {
         event.preventDefault();
         let shouldDelete = confirm('Are you sure you wanto to delete this user?');
 
-        if(shouldDelete) {
-            let userEmail = this.state.email;
-            alert(userEmail);
+        if (shouldDelete) {
             fetch('/emails/rememail', {
                 method: 'POST',
                 headers: {
@@ -40,12 +38,7 @@ class Unregister extends React.Component<{}, IUnregisterState> {
     }
 
     treatResponse(response: any) {
-        alert("this is the response i got:" + JSON.stringify(response));
-        if (response.msg === '') {
-            alert('Unregistration email sent!');
-        } else {
-            alert('Error: ' + response.msg);
-        }
+        alert(response.msg);
     }
 
     render() {

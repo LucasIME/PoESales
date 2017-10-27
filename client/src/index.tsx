@@ -4,7 +4,6 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import './index.css';
 import './analytics.js';
-import './poesales.js';
 import { HashRouter as Router } from 'react-router-dom';
 
 ReactDOM.render(

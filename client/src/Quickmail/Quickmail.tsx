@@ -4,7 +4,7 @@ interface IQuickmailState {
     email: string;
 }
 
-class Quickmail extends React.Component<{}, IQuickmailState>{
+class Quickmail extends React.Component<{}, IQuickmailState> {
 
     constructor() {
         super();
@@ -33,7 +33,7 @@ class Quickmail extends React.Component<{}, IQuickmailState>{
         alert(response.msg);
     }
 
-    render(): JSX.Element{
+    render(): JSX.Element {
         return(
             <div className="container">
                 <br/>
