@@ -42,7 +42,7 @@ router.post('/addemail', function(req, res) {
 
   //check if email trying to be inserted is valid
   if ( !isValidEmail(email)){
-    res.send({msg: 'error: not valid email'});
+    res.json({msg: 'error: not valid email'});
     return;
   }
   //checks if email is already in tempemails collection
@@ -50,7 +50,7 @@ router.post('/addemail', function(req, res) {
     console.log(responseVector);
     console.log('em temp ^');
     if (responseVector.length > 0) {
-      res.send({ msg: 'email already in our database waiting for confirmation'});
+      res.json({ msg: 'email already in our database waiting for confirmation'});
       return;
     }
     else{
@@ -60,7 +60,7 @@ router.post('/addemail', function(req, res) {
         console.log(responseVector);
         console.log('em emails ^');
         if(responseVector.length > 0){
-          res.send({msg : 'email already in our verified emails database'});
+          res.json({msg : 'email already in our verified emails database'});
           return;
         }
         else{
@@ -86,9 +86,9 @@ router.post('/addemail', function(req, res) {
                 }
               });
 
-              res.send({msg: ''});
+              res.json({msg: 'A confirmation email has been sent to you!'});
             } else {
-              res.send({msg: 'error' + err});
+              res.json({msg: 'error' + err});
             }
           });
 
