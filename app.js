@@ -10,8 +10,7 @@ var monk = require('monk');
 
 var dbusername = process.env.dbusername;
 var dbpassword = process.env.dbpassword;
-var dbUrl = 'mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales'
-var db = monk(dbUrl);
+var db = monk('mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
