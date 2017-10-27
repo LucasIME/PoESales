@@ -1,5 +1,3 @@
-var dbusername = process.env.dbusername;
-var dbpassword = process.env.dbpassword;
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -12,7 +10,8 @@ var monk = require('monk');
 
 var dbusername = process.env.dbusername;
 var dbpassword = process.env.dbpassword;
-var db = monk('mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales');
+var dbUrl = 'mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales'
+var db = monk(dbUrl);
 
 var routes = require('./routes/index');
 var users = require('./routes/users');

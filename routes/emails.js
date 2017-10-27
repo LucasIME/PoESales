@@ -17,7 +17,8 @@ if (process.env.NODE_ENV === 'dev'){
   router.get('/', function(req, res) {
     var db = req.db;
     var collection = db.get('emails');
-    collection.find({}, {}, function(e, emails) {
+    collection.find({}, {})
+    .then(function(e, emails) {
       res.json(emails);
     });
   });
@@ -46,7 +47,8 @@ router.post('/addemail', function(req, res) {
     return;
   }
   //checks if email is already in tempemails collection
-  collection.find({'email':email}, {}, function(findError, responseVector){
+  collection.find({'email':email}, {})
+  .then(function(findError, responseVector){
     console.log(responseVector);
     console.log('em temp ^');
     if (responseVector.length > 0) {
@@ -56,7 +58,8 @@ router.post('/addemail', function(req, res) {
     else{
 
       //checks if email is already in emails collection
-      db.get('emails').find({'email':email}, {}, function(findError, responseVector){
+      db.get('emails').find({'email':email}, {})
+      .then(function(findError, responseVector){
         console.log(responseVector);
         console.log('em emails ^');
         if(responseVector.length > 0){
@@ -68,7 +71,8 @@ router.post('/addemail', function(req, res) {
           //add email to tempemail db
           collection.insert({
             "email": email
-          }, function(err, docInserted) {
+          })
+          .then(function(err, docInserted) {
             if (err === null) {
               console.log(docInserted);
                 //send email with hash URL to validate entry
@@ -108,17 +112,20 @@ router.get('/validateemail/:id', function(req, res) {
   var emailID = req.params.id;
 
   //check if id exists in tempemail
-  tempCollection.find( {_id : emailID}, {}, function(findError, responseVector){
+  tempCollection.find({_id : emailID}, {})
+  .then(function(findError, responseVector){
     if (responseVector.length == 1){
       var entry = responseVector[0];
 
       //remove entry from tempemail
-      tempCollection.remove(entry, function(removeError){
+      tempCollection.remove(entry)
+      .then(function(removeError){
         if (removeError !==null) res.send({msg:'error' + removeError});
       });
 
       //insert entry in email
-      collection.insert({'email':entry.email}, function(insertError){
+      collection.insert({'email':entry.email})
+      .then(function(insertError){
           if (insertError !==null) res.send({msg:'error' + insertError});
       });
 
@@ -136,14 +143,17 @@ router.post('/rememail', function(req, res) {
   var userEmail = req.body.email;
   var collection = db.get('emails');
 
+  console.log("I'm here. body: " + JSON.stringify(req.body));
+
   userEmail = userEmail.toLowerCase();
 
   if ( !isValidEmail(userEmail)){
     res.send({msg: 'error: not valid email'});
     return;
   }
-
-  collection.find({email: userEmail}, {}, function(findError,responseVector){
+console.log('just before mailfind' + userEmail);
+  collection.find({email: userEmail}, {})
+  .then(function(findError,responseVector){
     console.log(userEmail);
     console.log(responseVector);
     if(responseVector.length == 1){
@@ -175,12 +185,14 @@ router.get('/deleteemail/:id', function(req, res) {
   var collection = db.get('emails');
   var emailID = req.params.id;
 
-  collection.find({_id: emailID}, {}, function(findError, responseVector){
+  collection.find({_id: emailID}, {})
+  .then(function(findError, responseVector){
 
       if(responseVector.length == 1){
         var entry = responseVector[0];
         //remove entry from permanent collection
-        collection.remove(entry, function(removeError){
+        collection.remove(entry)
+        .then(function(removeError){
           if(removeError !== null) res.send({msg:'error' + removeError});
         });
 
