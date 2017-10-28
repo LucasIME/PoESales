@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'dev'){
   router.get('/', function(req, res) {
     var db = req.db;
     var collection = db.get('emails');
-    collection.find({}, {}, function(e, emails) {
+    collection.find({}).then(function(emails) {
       res.json(emails);
     });
   });
@@ -46,7 +46,7 @@ router.post('/addemail', function(req, res) {
     return;
   }
   //checks if email is already in tempemails collection
-  collection.find({'email':email}, {}, function(findError, responseVector){
+  collection.find({'email':email}).then(function(responseVector){
     console.log(responseVector);
     console.log('em temp ^');
     if (responseVector.length > 0) {
@@ -56,7 +56,8 @@ router.post('/addemail', function(req, res) {
     else{
 
       //checks if email is already in emails collection
-      db.get('emails').find({'email':email}, {}, function(findError, responseVector){
+      db.get('emails').find({'email':email}).
+      then(function(responseVector){
         console.log(responseVector);
         console.log('em emails ^');
         if(responseVector.length > 0){
@@ -68,8 +69,7 @@ router.post('/addemail', function(req, res) {
           //add email to tempemail db
           collection.insert({
             "email": email
-          }, function(err, docInserted) {
-            if (err === null) {
+          }).then(function(docInserted) {
               console.log(docInserted);
                 //send email with hash URL to validate entry
               var emailObject = new sendgrid.Email({
@@ -87,9 +87,6 @@ router.post('/addemail', function(req, res) {
               });
 
               res.json({msg: 'A confirmation email has been sent to you!'});
-            } else {
-              res.json({msg: 'error' + err});
-            }
           });
 
         }
@@ -108,24 +105,20 @@ router.get('/validateemail/:id', function(req, res) {
   var emailID = req.params.id;
 
   //check if id exists in tempemail
-  tempCollection.find( {_id : emailID}, {}, function(findError, responseVector){
+  tempCollection.find( {_id : emailID}).then(function(responseVector){
     if (responseVector.length == 1){
       var entry = responseVector[0];
 
       //remove entry from tempemail
-      tempCollection.remove(entry, function(removeError){
-        if (removeError !==null) res.send({msg:'error' + removeError});
-      });
+      tempCollection.remove(entry);
 
       //insert entry in email
-      collection.insert({'email':entry.email}, function(insertError){
-          if (insertError !==null) res.send({msg:'error' + insertError});
-      });
+      collection.insert({'email':entry.email});
 
       res.render('success');
 
     } else{
-      res.send({msg:'error:' + findError});
+      res.json({msg:'error: no result found'});
     }
   });
 
@@ -139,11 +132,11 @@ router.post('/rememail', function(req, res) {
   userEmail = userEmail.toLowerCase();
 
   if ( !isValidEmail(userEmail)){
-    res.send({msg: 'error: not valid email'});
+    res.json({msg: 'error: not valid email'});
     return;
   }
 
-  collection.find({email: userEmail}, {}, function(findError,responseVector){
+  collection.find({email: userEmail}).then(function(responseVector){
     console.log(userEmail);
     console.log(responseVector);
     if(responseVector.length == 1){
@@ -157,14 +150,16 @@ router.post('/rememail', function(req, res) {
         html : '<h3>Click the link bellow to confirm your unregistration</h3><br><a href="http://' + baseURL + '/emails/deleteemail/' + String(entry._id) + '">' + baseURL + '/emails/deleteemail/'+ String(entry._id) + "</a>"
       });
       sendgrid.send(emailObject, function(err, json){
-        if (err) return console.log(error);
+        if (err) return console.log(err);
         else{
           console.log(json);
           console.log("Message sent: " + json.response);
-          res.send({"msg":"Email sent successfully!"});
+          res.json({"msg": "Email sent successfully!"});
         }
       });
-
+    }
+    else {
+      res.json({"msg": "Sorry, we did not find this email in our database"});
     }
 
   });
@@ -175,19 +170,17 @@ router.get('/deleteemail/:id', function(req, res) {
   var collection = db.get('emails');
   var emailID = req.params.id;
 
-  collection.find({_id: emailID}, {}, function(findError, responseVector){
+  collection.find({_id: emailID}).then(function(responseVector){
 
       if(responseVector.length == 1){
         var entry = responseVector[0];
         //remove entry from permanent collection
-        collection.remove(entry, function(removeError){
-          if(removeError !== null) res.send({msg:'error' + removeError});
-        });
+        collection.remove(entry);
 
         res.render('emaildelete');
       }
       else{
-        res.send({msg:'error' +  findError});
+        res.json({msg:'error: did not find email to delete'});
       }
     });
 });
@@ -197,7 +190,7 @@ router.get('/scrape/:email', function(req, res){
   var email = req.params.email;
 
   if ( !isValidEmail(email)){
-    res.send({msg: 'error: not valid email'});
+    res.json({msg: 'error: not valid email'});
   }
   else{
     request(url, function (error, response, html) {
@@ -233,8 +226,8 @@ router.get('/scrape/:email', function(req, res){
           sendgrid.send(emailObject, function(err, json){
             console.log(emailObject.html);
             if (err) {
-              console.log(error);
-              res.send({msg:'error: ' + error});
+              console.log(err);
+              res.json({msg:'error: ' + err});
             }
             else{
               console.log(json);
