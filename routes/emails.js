@@ -9,7 +9,6 @@ var cheerio = require('cheerio');
 
 //Loading needed condig for emails
 var sourceEmail = process.env.sourceEmail;
-var sourceEmailPassword = process.env.sourceEmailPassword;
 var baseURL = process.env.baseURL;
 if (process.env.NODE_ENV === 'dev'){
   var baseURL = 'localhost:' + String(process.env.PORT);
@@ -57,21 +56,20 @@ router.post('/addemail', function(req, res) {
 
       //checks if email is already in emails collection
       db.get('emails').find({'email':email}).
-      then(function(responseVector){
-        console.log(responseVector);
-        console.log('em emails ^');
-        if(responseVector.length > 0){
-          res.json({msg : 'email already in our verified emails database'});
-          return;
-        }
-        else{
-
-          //add email to tempemail db
-          collection.insert({
-            "email": email
-          }).then(function(docInserted) {
+        then(function(responseVector){
+          console.log(responseVector);
+          console.log('em emails ^');
+          if(responseVector.length > 0){
+            res.json({msg : 'email already in our verified emails database'});
+            return;
+          }
+          else{
+            //add email to tempemail db
+            collection.insert({
+              'email': email
+            }).then(function(docInserted) {
               console.log(docInserted);
-                //send email with hash URL to validate entry
+              //send email with hash URL to validate entry
               var emailObject = new sendgrid.Email({
                 to : email,
                 from : "Poe Sales Bot <" + sourceEmail + ">",
@@ -79,20 +77,16 @@ router.post('/addemail', function(req, res) {
                 html : '<h3>Click the link bellow to confirm your registration:</h3><br><a href="http://' +  baseURL + '/emails/validateemail/' + String(docInserted._id) + '">' + baseURL + '/emails/validateemail/'+ String(docInserted._id) + "</a>"
               });
               sendgrid.send(emailObject, function(err, json){
-                if (err) return console.log(error);
+                if (err) return console.log(err);
                 else{
                   console.log(json);
                   console.log("Message sent: " + json.response);
                 }
               });
-
               res.json({msg: 'A confirmation email has been sent to you!'});
-          });
-
-        }
-
-      });
-
+            });
+          }
+        });
     }
   });
 
@@ -171,18 +165,17 @@ router.get('/deleteemail/:id', function(req, res) {
   var emailID = req.params.id;
 
   collection.find({_id: emailID}).then(function(responseVector){
+    if(responseVector.length == 1){
+      var entry = responseVector[0];
+      //remove entry from permanent collection
+      collection.remove(entry);
 
-      if(responseVector.length == 1){
-        var entry = responseVector[0];
-        //remove entry from permanent collection
-        collection.remove(entry);
-
-        res.render('emaildelete');
-      }
-      else{
-        res.json({msg:'error: did not find email to delete'});
-      }
-    });
+      res.render('emaildelete');
+    }
+    else{
+      res.json({msg:'error: did not find email to delete'});
+    }
+  });
 });
 
 router.get('/scrape/:email', function(req, res){
@@ -195,46 +188,46 @@ router.get('/scrape/:email', function(req, res){
   else{
     request(url, function (error, response, html) {
       if (!error && response.statusCode == 200) {
-          var $ = cheerio.load(html);
-          //console.log(html);
-          var  itemPricesDic = {};
-          //create itemprice dictionary based on items in discount
-          $('.shopItemBase').each(function(){
-            var itemName = $(this).children().first().next().text();
-            var itemPrice = $(this).children().first().next().next().text();
-            itemPricesDic[itemName] = itemPrice;
-          });
+        var $ = cheerio.load(html);
+        //console.log(html);
+        var  itemPricesDic = {};
+        //create itemprice dictionary based on items in discount
+        $('.shopItemBase').each(function(){
+          var itemName = $(this).children().first().next().text();
+          var itemPrice = $(this).children().first().next().next().text();
+          itemPricesDic[itemName] = itemPrice;
+        });
 
-          //setting up email body
+        //setting up email body
 
-          var emailObject = new sendgrid.Email({
-            to : email,
-            from : "Poe Sales Bot <" + sourceEmail + ">",
-            subject : "PoE Discounts",
-            html : "<h3>The Following items are in discount:</h3>"
-          });
+        var emailObject = new sendgrid.Email({
+          to : email,
+          from : "Poe Sales Bot <" + sourceEmail + ">",
+          subject : "PoE Discounts",
+          html : "<h3>The Following items are in discount:</h3>"
+        });
 
-          for (var item in itemPricesDic){
-            emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>';
+        for (var item in itemPricesDic){
+          emailObject.html += '<p>' + item + ' for ' + itemPricesDic[item] + ' coins</p>';
+        }
+        //link to the store
+        emailObject.html += '<p>Liked the item? Don\'t miss the opportunity and go straight to the shop! <a href="https://www.pathofexile.com/shop/category/daily-deals">https://www.pathofexile.com/shop/category/daily-deals</a></p>';
+
+        //adding unregister footer message
+        emailObject.html += '<br><p><small>Are you tired of receiving this emails? Click <a href="http://' + baseURL +  '/unregister">here</a> to unsubscribe</small></p>';
+        //sends email
+        sendgrid.send(emailObject, function(err, json){
+          console.log(emailObject.html);
+          if (err) {
+            console.log(err);
+            res.json({msg:'error: ' + err});
           }
-          //link to the store
-          emailObject.html += '<p>Liked the item? Don\'t miss the opportunity and go straight to the shop! <a href="https://www.pathofexile.com/shop/category/daily-deals">https://www.pathofexile.com/shop/category/daily-deals</a></p>';
-
-          //adding unregister footer message
-          emailObject.html += '<br><p><small>Are you tired of receiving this emails? Click <a href="http://' + baseURL +  '/unregister">here</a> to unsubscribe</small></p>';
-          //sends email
-          sendgrid.send(emailObject, function(err, json){
-            console.log(emailObject.html);
-            if (err) {
-              console.log(err);
-              res.json({msg:'error: ' + err});
-            }
-            else{
-              console.log(json);
-              console.log("Message sent: " + json.response);
-              res.json({msg:'Email sent successfully'});
-            }
-          });
+          else{
+            console.log(json);
+            console.log('Message sent: ' + json.response);
+            res.json({msg:'Email sent successfully'});
+          }
+        });
 
       }
     });
