@@ -33,63 +33,53 @@ var sendgrid  = require('sendgrid')(sendgripAPI);
 
 router.post('/addemail', function(req, res) {
   var db = req.db;
-
   var email = req.body.email;
   email = email.toLowerCase();
-
   var collection = db.get('tempemails');
 
-  //check if email trying to be inserted is valid
   if ( !isValidEmail(email)){
     res.json({msg: 'error: not valid email'});
     return;
   }
-  //checks if email is already in tempemails collection
+
   collection.find({'email':email}).then(function(responseVector){
-    console.log(responseVector);
-    console.log('em temp ^');
     if (responseVector.length > 0) {
       res.json({ msg: 'email already in our database waiting for confirmation'});
-      return;
+      return Promise.reject('email already in database waiting for confirmation');
     }
-    else{
 
-      //checks if email is already in emails collection
-      db.get('emails').find({'email':email}).
-        then(function(responseVector){
-          console.log(responseVector);
-          console.log('em emails ^');
-          if(responseVector.length > 0){
-            res.json({msg : 'email already in our verified emails database'});
-            return;
-          }
-          else{
-            //add email to tempemail db
-            collection.insert({
-              'email': email
-            }).then(function(docInserted) {
-              console.log(docInserted);
-              //send email with hash URL to validate entry
-              var emailObject = new sendgrid.Email({
-                to : email,
-                from : "Poe Sales Bot <" + sourceEmail + ">",
-                subject : "PoESales Validation Email",
-                html : '<h3>Click the link bellow to confirm your registration:</h3><br><a href="http://' +  baseURL + '/emails/validateemail/' + String(docInserted._id) + '">' + baseURL + '/emails/validateemail/'+ String(docInserted._id) + "</a>"
-              });
-              sendgrid.send(emailObject, function(err, json){
-                if (err) return console.log(err);
-                else{
-                  console.log(json);
-                  console.log("Message sent: " + json.response);
-                }
-              });
-              res.json({msg: 'A confirmation email has been sent to you!'});
-            });
-          }
-        });
+    return db.get('emails').find({'email':email});
+  }).then(function(responseVector){
+    if(responseVector.length > 0){
+      res.json({msg : 'email already in our verified emails database'});
+      return Promise.reject('email already in our verified emails database');
     }
-  });
 
+    return collection.insert({'email': email});
+  })
+    .then(function(docInserted){
+      //send email with hash URL to validate entry
+      var emailObject = new sendgrid.Email({
+        to : email,
+        from : "Poe Sales Bot <" + sourceEmail + ">",
+        subject : "PoESales Validation Email",
+        html : '<h3>Click the link bellow to confirm your registration:</h3><br><a href="http://' +  baseURL + '/emails/validateemail/' + String(docInserted._id) + '">' + baseURL + '/emails/validateemail/'+ String(docInserted._id) + "</a>"
+      });
+      sendgrid.send(emailObject, function(err, json){
+        if (err) {
+          console.log(err);
+          res.json({'msg': 'error: ' + err});
+        }
+        else{
+          console.log(json);
+          console.log("Message sent: " + json.response);
+        }
+      });
+      res.json({msg: 'A confirmation email has been sent to you!'});
+    })
+    .catch(function(err){
+      console.log('There was an error in the promise chain: ' + err);
+    });
 });
 
 router.get('/validateemail/:id', function(req, res) {
