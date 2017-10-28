@@ -7,7 +7,7 @@ var router = express.Router();
 var request = require('request');
 var cheerio = require('cheerio');
 
-//Loading needed condig for emails
+//Loading needed config for emails
 var sourceEmail = process.env.sourceEmail;
 var baseURL = process.env.baseURL;
 if (process.env.NODE_ENV === 'dev'){
@@ -27,7 +27,6 @@ function isValidEmail( email){
   return re.test(email);
 }
 
-//declaring emailing object
 var sendgripAPI = process.env.sendgridAPI;
 var sendgrid  = require('sendgrid')(sendgripAPI);
 
@@ -58,7 +57,6 @@ router.post('/addemail', function(req, res) {
     return collection.insert({'email': email});
   })
     .then(function(docInserted){
-      //send email with hash URL to validate entry
       var emailObject = new sendgrid.Email({
         to : email,
         from : "Poe Sales Bot <" + sourceEmail + ">",
@@ -88,19 +86,14 @@ router.get('/validateemail/:id', function(req, res) {
   var collection = db.get('emails');
   var emailID = req.params.id;
 
-  //check if id exists in tempemail
   tempCollection.find( {_id : emailID}).then(function(responseVector){
     if (responseVector.length == 1){
       var entry = responseVector[0];
 
-      //remove entry from tempemail
       tempCollection.remove(entry);
-
-      //insert entry in email
       collection.insert({'email':entry.email});
 
       res.render('success');
-
     } else{
       res.json({msg:'error: no result found'});
     }
@@ -157,7 +150,6 @@ router.get('/deleteemail/:id', function(req, res) {
   collection.find({_id: emailID}).then(function(responseVector){
     if(responseVector.length == 1){
       var entry = responseVector[0];
-      //remove entry from permanent collection
       collection.remove(entry);
 
       res.render('emaildelete');
@@ -179,7 +171,6 @@ router.get('/scrape/:email', function(req, res){
     request(url, function (error, response, html) {
       if (!error && response.statusCode == 200) {
         var $ = cheerio.load(html);
-        //console.log(html);
         var  itemPricesDic = {};
         //create itemprice dictionary based on items in discount
         $('.shopItemBase').each(function(){
@@ -187,8 +178,6 @@ router.get('/scrape/:email', function(req, res){
           var itemPrice = $(this).children().first().next().next().text();
           itemPricesDic[itemName] = itemPrice;
         });
-
-        //setting up email body
 
         var emailObject = new sendgrid.Email({
           to : email,
@@ -205,7 +194,7 @@ router.get('/scrape/:email', function(req, res){
 
         //adding unregister footer message
         emailObject.html += '<br><p><small>Are you tired of receiving this emails? Click <a href="http://' + baseURL +  '/unregister">here</a> to unsubscribe</small></p>';
-        //sends email
+
         sendgrid.send(emailObject, function(err, json){
           console.log(emailObject.html);
           if (err) {
