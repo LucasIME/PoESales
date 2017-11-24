@@ -11,7 +11,6 @@ var dbpassword = process.env.dbpassword;
 var dbUrl = 'mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales';
 var db = monk(dbUrl);
 
-var routes = require('./routes/index');
 var users = require('./routes/users');
 var emails = require('./routes/emails');
 
