@@ -41,13 +41,18 @@ class Quickmail extends React.Component<{}, IQuickmailState> {
                 <div className="login-wrap">
                     <div className="form">
                         <form onSubmit={this.handleSubmit}>
-                            <input type="text" placeholder="email" id="sendemail" name="email" value={this.state.email} onChange={this.handleChange}/>
+                            <input 
+                                type="text" 
+                                placeholder="email" 
+                                value={this.state.email}
+                                onChange={this.handleChange}
+                            />
                             <button id="sendButton">Email me!</button>
                         </form>
                     </div>
                 </div>
             </div>
-    );
+        );
     }
 }
 

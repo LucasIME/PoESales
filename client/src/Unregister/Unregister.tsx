@@ -47,7 +47,7 @@ class Unregister extends React.Component<{}, IUnregisterState> {
                 <div className="login-wrap">
                     <h2>Unregister Form</h2>
                     <div className="form">
-                        <input type="text" placeholder="email" id="unregemail" name="email" value={this.state.email} onChange={this.handleChange} />
+                        <input type="text" placeholder="email" value={this.state.email} onChange={this.handleChange}/>
                         <button id="unregButton" >Unregister</button>
                     </div>
                 </div>

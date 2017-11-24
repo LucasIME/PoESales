@@ -4,7 +4,7 @@ interface IRegisterState {
     email: string;
 }
 
-class Register extends React.Component<{}, IRegisterState>{
+class Register extends React.Component<{}, IRegisterState> {
 
     constructor() {
         super();
@@ -50,7 +50,7 @@ class Register extends React.Component<{}, IRegisterState>{
                 <div className="login-wrap">
                     <h2>Registration Form</h2>
                     <div className="form">
-                        <input type="text" placeholder="email" id="regemail" name="email" value={this.state.email} onChange={this.handleChange}/>
+                        <input type="text" placeholder="email" value={this.state.email} onChange={this.handleChange}/>
                         <button id="regButton">Register</button>
                     </div>
                 </div>
