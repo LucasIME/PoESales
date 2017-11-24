@@ -11,7 +11,6 @@ var dbpassword = process.env.dbpassword;
 var dbUrl = 'mongodb://' + dbusername + ':' + dbpassword +'@ds011168.mlab.com:11168/poesales';
 var db = monk(dbUrl);
 
-var users = require('./routes/users');
 var emails = require('./routes/emails');
 
 var app = express();
@@ -38,7 +37,6 @@ app.use(function(req, res, next){
   next();
 });
 
-app.use('/users', users);
 app.use('/emails', emails);
 
 app.use(express.static(path.join(__dirname, 'client', 'build')));
