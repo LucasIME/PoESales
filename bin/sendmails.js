@@ -28,48 +28,58 @@ var db = monk(
 var collection = db.get("emails");
 var url = "https://www.pathofexile.com/shop/category/daily-deals";
 
-request(url, function(error, response, html) {
-  if (!error && response.statusCode == 200) {
-    var $ = cheerio.load(html);
-    //console.log(html);
-    var itemPricesDic = {};
-    //create itemprice dictionary based on items in discount
-    $(".shopItemBase").each(function() {
-      var itemName = $(this)
-        .children()
-        .first()
-        .next()
-        .text();
-      var itemPrice = $(this)
-        .children()
-        .first()
-        .next()
-        .next()
-        .text();
-      itemPricesDic[itemName] = itemPrice;
-    });
+function buildItemPriceDict(html){
+  var $ = cheerio.load(html);
+  var itemPricesDic = {};
+  //create itemprice dictionary based on items in discount
+  $(".shopItemBase").each(function() {
+    var itemName = $(this)
+      .children()
+      .first()
+      .next()
+      .text();
+    var itemPrice = $(this)
+      .children()
+      .first()
+      .next()
+      .next()
+      .text();
+    itemPricesDic[itemName] = itemPrice;
+  });
+  return itemPricesDic;
+}
 
-    //sends email to each email in the database
-    collection
-      .find({})
-      .then(function(itemsVec) {
-        console.log(itemsVec);
-        for (var index in itemsVec) {
-          var targetEmail = itemsVec[index].email;
-          mailHelper.sendPromoMail(targetEmail, itemPricesDic, function(err, json) {
-            if (err) {
-              console.log("Error sending message to: " + targetEmail, err);
-            } else {
-              console.log(json);
-              console.log("Message sent to : " + targetEmail);
-            }
+function sendPromoEmailToAll() {
+  request(url, function(error, response, html) {
+    if (!error && response.statusCode == 200) {
+      var itemPricesDic = buildItemPriceDict(html);
+      //sends email to each email in the database
+      collection
+        .find({})
+        .then(function(itemsVec) {
+          console.log(itemsVec);
+          itemsVec.forEach(function(item){
+            var targetEmail = item.email;
+            mailHelper.sendPromoMail(targetEmail, itemPricesDic, function(err, json) {
+              if (err) {
+                console.log("Error sending message to: " + targetEmail, err);
+              } else {
+                console.log(json);
+                console.log("Message sent to : " + targetEmail);
+              }
+            });
+
           });
-        }
-      })
-      .catch(function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
-  }
-});
+        })
+        .catch(function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+    }
+  });
+}
+
+sendPromoEmailToAll();
+
+module.exports = sendPromoEmailToAll;
