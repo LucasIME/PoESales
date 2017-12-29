@@ -15,15 +15,8 @@ var mailHelper = new PoEMail(sendgridAPI, sourceEmail);
 
 var monk = require("monk");
 
-var dbusername = process.env.dbusername;
-var dbpassword = process.env.dbpassword;
-var db = monk(
-  "mongodb://" +
-    dbusername +
-    ":" +
-    dbpassword +
-    "@ds011168.mlab.com:11168/poesales"
-);
+var dbUrl = process.env.dburl;
+var db = monk(dbUrl);
 
 var collection = db.get("emails");
 var url = "https://www.pathofexile.com/shop/category/daily-deals";
